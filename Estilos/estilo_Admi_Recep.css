@@ -1,0 +1,184 @@
+/* --- Reseteo Básico y Estilos Globales --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    /* Fondo gris claro para el modo escritorio */
+    background-color: #f0f2f5; 
+}
+
+/* * --- DISEÑO DE ESCRITORIO (Centrado) ---
+ * Usamos Grid para centrar todo el wrapper 
+*/
+body {
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Logo (encima de la tarjeta) */
+.logo {
+    display: block;
+    max-width: 200px; /* Ajusta el tamaño del logo */
+    height: auto;
+    margin: 0 auto 2rem auto; /* Centrado y con espacio inferior */
+}
+
+/* Tarjeta de Login */
+.panel-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.login-form h1, .admin-options h2 {
+    font-size: 1.8rem; 
+    font-weight: 700;
+    color: #333; /* Texto oscuro */
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.login-form h2 {
+    font-size: 1rem; 
+    font-weight: 400;
+    color: #555; 
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #444;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #38BCAE;
+    box-shadow: 0 0 0 2px rgba(56, 188, 174, 0.2);
+}
+
+/* Botón de Ingresar */
+.btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #38BCAE; /* Tu color principal */
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #2d998f; /* Un tono más oscuro */
+}
+
+/* Estilos para los botones de admin (después del login) */
+.admin-options .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+}
+
+/* Mensaje de ERROR (Rojo) */
+.error-message {
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+/* Mensaje de ÉXITO (Verde) */
+.success-message {
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    background-color: #d4edda; /* Verde pálido */
+    color: #155724;            /* Verde oscuro */
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+/* =================================== */
+/* ====== ESTILO MENSAJE DE ERROR ====== */
+/* =================================== */
+
+/* Este es el estilo de "burbuja de texto" que pediste */
+.error-message {
+    color: #D9534F; /* Rojo */
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+}
+
+/* * --- RESPONSIVE PARA CELULAR ---
+ * (Para pantallas de 480px o menos)
+*/
+@media (max-width: 480px) {
+    
+    /* El fondo de la página es blanco (como la tarjeta) */
+    body {
+        background-color: #ffffff;
+        /* Quitamos el centrado vertical para que empiece desde arriba */
+        display: block; 
+        padding: 0;
+    }
+
+    .login-wrapper {
+        padding: 2rem 1.5rem; /* Damos espacio en los lados */
+    }
+
+    /* Quitamos la sombra y el fondo de la tarjeta */
+    .panel-container {
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .logo {
+        margin-bottom: 1.5rem;
+    }
+
+    .login-form h1, .admin-options h2 {
+        font-size: 1.6rem;
+    }
+}
+

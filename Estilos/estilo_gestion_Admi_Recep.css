@@ -1,0 +1,773 @@
+/* Estilo para el body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5; 
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+/* Estilo general para el contenedor */
+.gestion-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px;
+    gap: 30px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* Menú de opciones (a la izquierda) */
+.menu-options {
+    width: 25%;
+    min-width: 280px;
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-options .logo {
+    max-width: 180px;
+    height: auto;
+    margin-bottom: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.menu-options h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #333;
+    text-align: left;
+    margin-bottom: 10px;
+}
+
+.menu-options h2 {
+    font-size: 1.3rem;
+    color: #38BCAE;
+    font-weight: 700;
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn {
+    padding: 14px;
+    background-color: #38BCAE;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+}
+
+.btn:hover {
+    background-color: #2d998f;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* Botón de Cerrar sesión */
+.logout-btn {
+    width: auto;
+    padding: 14px;
+    background-color: #D9534F;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    margin-top: auto;
+}
+
+.logout-btn:hover {
+    background-color: #c9302c;
+}
+
+.logout-btn:active {
+    transform: scale(0.98);
+}
+
+/* Área de acción (a la derecha) */
+.action-area {
+    width: 75%;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: none; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+/* Contenedor inicial "Seleccione una opción" */
+.content-box {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0; 
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.content-box h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.content-box p {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 0;
+}
+
+
+/* =================================== */
+/* ====== ESTILOS DE VISTA DE TABLAS ====== */
+/* (Citas, Lista Espera, Usuarios, Odontologos, Pacientes) */
+/* =================================== */
+
+.citas-container {
+    width: 100%;
+    box-sizing: border-box; 
+    align-self: flex-start; /* Esto hace que las tablas se alineen arriba */
+}
+
+.citas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.citas-header h2,
+.citas-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.citas-header .badge {
+    display: inline-block;
+    background-color: #337ab7;
+    color: white;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    border-radius: 10px;
+    vertical-align: middle;
+    margin-left: 8px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar label {
+    margin-right: 10px;
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 700;
+}
+
+.search-bar input[type="text"] {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto; 
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.citas-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.citas-container th,
+.citas-container td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.citas-container th {
+    background-color: #f8f9fa;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #333;
+    text-transform: uppercase;
+}
+
+.citas-container td {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.opciones-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-edit, .btn-delete, .btn-assign, .btn-remove {
+    padding: 5px 12px;
+    font-size: 0.9rem;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-edit, .btn-assign {
+    background-color: #38BCAE;
+}
+.btn-edit:hover, .btn-assign:hover {
+    background-color: #2d998f;
+}
+
+.btn-delete, .btn-remove {
+    background-color: #D9534F;
+}
+.btn-delete:hover, .btn-remove:hover {
+    background-color: #c9302c;
+}
+
+.citas-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.btn-add-new {
+    background-color: #38BCAE;
+    color: white;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.btn-add-new:hover {
+    background-color: #2d998f;
+}
+
+/* Botón para volver al sub-menú */
+.btn-back {
+    background-color: #6c757d;
+    padding: 12px 20px;
+    font-size: 1rem;
+}
+.btn-back:hover {
+    background-color: #5a6268;
+}
+
+.pagination-info {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 700;
+}
+
+
+/* =================================== */
+/* ====== ESTILOS DE REPORTES ====== */
+/* =================================== */
+
+.report-container {
+  text-align: left;
+  width: 100%;
+  max-width: 900px;
+}
+
+.report-container h3 {
+  text-align: center;
+}
+
+.report-filters-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 15px;
+  align-items: center;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.report-filters-grid label {
+  font-weight: 700;
+  color: #555;
+  text-align: right;
+}
+
+.report-filters-grid input[type="date"],
+.report-filters-grid select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.report-actions .btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  font-size: 0.95rem;
+}
+
+.report-actions .btn#generatePDF img,
+.report-actions .btn#generateExcel img {
+  width: 18px !important;
+  height: 18px !important;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.report-actions #generateReport {
+  background-color: #38BCAE; 
+}
+.report-actions #generateReport:hover {
+  background-color: #2d998f;
+}
+.report-actions #generatePDF {
+  background-color: #D9534F;
+}
+.report-actions #generatePDF:hover {
+  background-color: #c9302c;
+}
+.report-actions #generateExcel {
+  background-color: #1D6F42;
+}
+.report-actions #generateExcel:hover {
+  background-color: #165934;
+}
+
+
+/* =================================== */
+/* ====== ESTILOS SUB-MENÚ USUARIOS ====== */
+/* =================================== */
+
+.user-menu-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columnas */
+    grid-template-rows: 1fr 1fr;    /* 2 filas */
+    gap: 25px;                      /* Espacio entre botones */
+    
+    /* --- ¡CAMBIO AQUÍ! --- */
+    /* Define un tamaño grande y fijo para la cuadrícula */
+    width: 90%;
+    height: 90%;
+    /* Máximos para que no se descontrole en pantallas gigantes */
+    max-width: 900px;
+    max-height: 700px; 
+    
+    box-sizing: border-box;
+    /* El .action-area (padre) se encarga de centrar este contenedor */
+}
+
+.user-role-button {
+    display: flex;
+    align-items: center;
+    /* --- ¡CAMBIO AQUÍ! --- */
+    /* Centra el contenido (icono + texto) horizontalmente */
+    justify-content: center; 
+    flex-direction: row;       
+    gap: 25px;                 /* Espacio entre icono y texto */
+    padding: 30px;             
+    background-color: #38BCAE;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.8rem;         /* Tamaño de texto ajustado */
+    font-weight: 700;
+    text-decoration: none;
+    text-align: center; /* Centra el texto si se parte en dos líneas */
+}
+
+.user-role-button:hover {
+    background-color: #2d998f;
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.user-role-button img {
+    width: 70px;  
+    height: 70px;
+    object-fit: contain;
+    /* --- ¡ICONOS BLANCOS! --- */
+    filter: brightness(0) invert(1); 
+}
+
+.user-role-button span {
+    flex: none; /* Evita que el texto expanda el botón */
+}
+
+/* =================================== */
+/* ====== ESTILOS ODONTÓLOGO ====== */
+/* =================================== */
+
+.welcome-message {
+    padding: 15px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+.welcome-message h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+.welcome-message p {
+    margin: 0;
+    font-weight: 700;
+    color: #38BCAE;
+}
+
+/* =================================== */
+/* ====== (NUEVO) ESTILOS "MIS CITAS" ====== */
+/* =================================== */
+
+/* Botones de Aceptar / Rechazar */
+.btn-accept, .btn-reject {
+    padding: 5px 12px;
+    font-size: 0.9rem;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-accept {
+    background-color: #5cb85c; /* Verde */
+}
+.btn-accept:hover {
+    background-color: #449d44;
+}
+
+.btn-reject {
+    background-color: #D9534F; /* Rojo */
+}
+.btn-reject:hover {
+    background-color: #c9302c;
+}
+
+/* Insignias de Estado */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: white;
+    text-transform: capitalize; /* Pone la primera letra en mayúscula */
+}
+
+.status-badge.pendiente {
+    background-color: #f0ad4e; /* Naranja */
+}
+
+.status-badge.confirmada {
+    background-color: #5cb85c; /* Verde */
+}
+
+.status-badge.cancelada {
+    background-color: #D9534F; /* Rojo */
+}
+
+/* (NUEVO) Mensaje de bienvenida en el panel de odontólogo */
+.welcome-message {
+    padding: 15px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+.welcome-message h4 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+.welcome-message p {
+    margin: 0;
+    font-weight: 700;
+    color: #38BCAE;
+}
+
+/* =================================== */
+/* (NUEVO) ESTILOS HISTORIAL CLÍNICO */
+/* =================================== */
+
+.historial-container {
+  /* Contenedor principal para la vista de detalle */
+}
+
+.paciente-detalle-card {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 columnas */
+    gap: 10px 20px;
+}
+
+.paciente-detalle-card h3 {
+    grid-column: 1 / -1; /* El título ocupa ambas columnas */
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #38BCAE;
+}
+
+.paciente-detalle-card p {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+}
+.paciente-detalle-card p strong {
+    color: #555;
+}
+
+/* Contenedor para la lista de citas pasadas */
+.historial-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cita-item {
+    background-color: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    overflow: hidden; /* Para que el header se vea bien */
+}
+
+.cita-item-header {
+    background-color: #f8f9fa;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 15px; /* Espacio entre items */
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.cita-item-body {
+    padding: 15px;
+}
+
+.cita-item-body strong {
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.cita-item-body p {
+    margin: 5px 0 0 0;
+    color: #555;
+    white-space: pre-wrap; /* Respeta saltos de línea en las notas */
+    font-family: monospace;
+}
+
+.cita-item-actions {
+    padding: 0 15px 15px 15px;
+    text-align: right;
+}
+
+.btn-edit-nota {
+  /* Reutiliza el estilo de .btn-edit */
+    padding: 5px 12px;
+    font-size: 0.9rem;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    background-color: #38BCAE;
+}
+.btn-edit-nota:hover {
+    background-color: #2d998f;
+}
+
+/* =================================== */
+/* (NUEVO) ESTILOS LISTA DE ARCHIVOS */
+/* =================================== */
+
+.lista-archivos-cita {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 5px;
+}
+
+.lista-archivos-cita li {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.lista-archivos-cita li a {
+    text-decoration: none;
+    color: #38BCAE;
+    font-weight: 700;
+}
+
+.lista-archivos-cita li a:hover {
+    text-decoration: underline;
+}
+
+/* Estilos para el formulario de subir archivo */
+#formSubirArchivo {
+    border: 1px dashed #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+#formSubirArchivo input[type="file"] {
+    font-size: 0.95rem;
+}
+
+/* =================================== */
+/* ====== DISEÑO RESPONSIVE ====== */
+/* =================================== */
+
+@media (max-width: 768px) {
+    .gestion-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        height: auto;
+        padding: 10px;
+    }
+
+    .menu-options {
+        width: 90%;
+        min-width: 0;
+        margin-bottom: 0;
+        padding: 20px;
+    }
+
+    .action-area {
+        width: 90%;
+        padding: 10px;
+        height: auto; 
+    }
+
+    .menu-options h1 {
+        font-size: 1.4rem;
+    }
+    
+    .menu-options h2 {
+        font-size: 1.2rem;
+    }
+
+    .btn, .logout-btn {
+        font-size: 1rem;
+    }
+    
+    .logout-btn {
+        margin-top: 20px;
+    }
+    
+    .content-box {
+        padding: 30px;
+    }
+    
+    .content-box h3 {
+        font-size: 1.5rem;
+    }
+
+    /* Ajustes responsive para tablas */
+    .citas-header {
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .citas-footer {
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    /* Ajuste responsive para menú de usuarios */
+    .user-menu-container {
+      grid-template-columns: 1fr; 
+      height: auto; 
+      padding: 0; 
+      max-width: 100%; 
+      max-height: none; 
+    }
+
+    .user-role-button {
+      flex-direction: row;
+      gap: 20px;
+      height: auto;
+      font-size: 1.5rem; 
+      padding: 25px; 
+      justify-content: center; 
+    }
+    .user-role-button img {
+      width: 50px; 
+      height: 50px;
+    }
+
+    /* Ajustes responsive para reportes (Grid) */
+    .report-filters-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .report-filters-grid label {
+      text-align: left;
+      margin-bottom: -10px;
+    }
+}
