@@ -5,7 +5,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   
-  // --- Almacenamiento en caché para los filtros ---
+  // --- Almacenamiento en caché ---
   let allCitasData = []; 
   let allWaitingListData = [];
   let allAdminsData = []; 
@@ -28,15 +28,144 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnGenerateReports = document.querySelector("#generateReports");
   if(btnGenerateReports) btnGenerateReports.addEventListener("click", renderReportsView);
   
-  // Botón "Gestionar Usuarios" (Exclusivo del ADMIN)
   const btnManageUsers = document.querySelector("#manageUsers");
   if(btnManageUsers) btnManageUsers.addEventListener("click", renderUsersSubMenuView);
 
-  // Botón "Gestionar Pacientes" (Exclusivo del RECEPCIONISTA)
   const btnManagePatients = document.querySelector("#managePatients");
   if(btnManagePatients) btnManagePatients.addEventListener("click", renderPacientesView);
 
-  
+  // --- HU12: BOTÓN SERVICIOS Y HORARIOS ---
+  const btnManageServices = document.querySelector("#manageServices");
+  if(btnManageServices) btnManageServices.addEventListener("click", renderServicesView);
+
+
+  // ===================================
+  // ====== HU12: SERVICIOS Y HORARIOS ======
+  // ===================================
+
+  function renderServicesView() {
+    actionArea.innerHTML = `
+      <div style="display: flex; gap: 20px; flex-wrap: wrap; width: 100%;">
+        
+        <div class="citas-container" style="flex: 1; min-width: 300px;">
+            <div class="citas-header"><h2>Especialidades</h2></div>
+            <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                <table id="table-specialties">
+                    <thead><tr><th>Nombre</th><th>Acción</th></tr></thead>
+                    <tbody><tr><td colspan="2" style="text-align:center">Cargando...</td></tr></tbody>
+                </table>
+            </div>
+            <form id="formSpecialty" style="margin-top: 15px; display: flex; gap: 10px;">
+                <input type="text" name="nombre" placeholder="Nueva Especialidad" required style="padding: 8px; flex: 1; border:1px solid #ccc; border-radius:5px;">
+                <button type="submit" class="btn btn-add-new" style="padding: 8px 15px;">+</button>
+            </form>
+        </div>
+
+        <div class="citas-container" style="flex: 1; min-width: 300px;">
+            <div class="citas-header"><h2>Horarios Maestros</h2></div>
+            <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                <table id="table-schedules">
+                    <thead><tr><th>Turno</th><th>Hora</th><th>Desc.</th><th>Acción</th></tr></thead>
+                    <tbody><tr><td colspan="4" style="text-align:center">Cargando...</td></tr></tbody>
+                </table>
+            </div>
+            <form id="formSchedule" style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <select name="turno" required style="padding: 8px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="Mañana">Mañana</option>
+                    <option value="Tarde">Tarde</option>
+                    <option value="Noche">Noche</option>
+                </select>
+                <input type="time" name="hora" required style="padding: 8px; border:1px solid #ccc; border-radius:5px;">
+                <input type="text" name="descripcion" placeholder="Ej: 8am - 1pm" required style="padding: 8px; grid-column: span 2; border:1px solid #ccc; border-radius:5px;">
+                <button type="submit" class="btn btn-add-new" style="padding: 8px; grid-column: span 2;">Agregar Horario</button>
+            </form>
+        </div>
+
+      </div>
+    `;
+
+    loadServicesAndSchedules();
+
+    // Listener Agregar Especialidad
+    document.querySelector("#formSpecialty").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        fd.append('action', 'addSpecialty');
+        await sendServiceRequest(fd);
+        e.target.reset();
+    });
+
+    // Listener Agregar Horario
+    document.querySelector("#formSchedule").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        fd.append('action', 'addSchedule');
+        await sendServiceRequest(fd);
+        e.target.reset();
+    });
+  }
+
+  async function loadServicesAndSchedules() {
+    try {
+        // Asegúrate de haber creado el archivo 'gestion_servicios_horarios.php' en la carpeta PHP
+        const res = await fetch("../PHP/gestion_servicios_horarios.php?action=getAll").then(r => r.json());
+        
+        // Render Especialidades
+        const tbodyEsp = document.querySelector("#table-specialties tbody");
+        if(res.especialidades.length === 0) {
+             tbodyEsp.innerHTML = '<tr><td colspan="2" style="text-align:center">No hay especialidades.</td></tr>';
+        } else {
+            tbodyEsp.innerHTML = res.especialidades.map(s => `
+                <tr>
+                    <td>${escapeHTML(s.nombre_especialidad)}</td>
+                    <td style="text-align:center">
+                        <button class="btn-delete" onclick="deleteService('deleteSpecialty', ${s.id})" title="Eliminar">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Horarios
+        const tbodySch = document.querySelector("#table-schedules tbody");
+        if(res.horarios.length === 0) {
+             tbodySch.innerHTML = '<tr><td colspan="4" style="text-align:center">No hay horarios.</td></tr>';
+        } else {
+            tbodySch.innerHTML = res.horarios.map(h => `
+                <tr>
+                    <td>${escapeHTML(h.turno)}</td>
+                    <td>${escapeHTML(h.hora)}</td>
+                    <td>${escapeHTML(h.descripcion || '')}</td>
+                    <td style="text-align:center">
+                        <button class="btn-delete" onclick="deleteService('deleteSchedule', ${h.id})" title="Eliminar">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+    } catch(e) { console.error(e); }
+  }
+
+  async function sendServiceRequest(formData) {
+      try {
+          const res = await fetch("../PHP/gestion_servicios_horarios.php", { method: 'POST', body: formData }).then(r => r.json());
+          if(res.status === 'success') {
+              loadServicesAndSchedules();
+          } else {
+              alert(res.message || "Error al procesar la solicitud.");
+          }
+      } catch(e) { alert("Error de conexión."); }
+  }
+
+  // Función global para borrar desde el onclick del HTML
+  window.deleteService = async function(action, id) {
+      if(!confirm("¿Estás seguro de eliminar este registro?")) return;
+      const fd = new FormData();
+      fd.append('action', action);
+      fd.append('id', id);
+      await sendServiceRequest(fd);
+  };
+
+
   // ===================================
   // ====== SECCIÓN DE REPORTES ======
   // ===================================
@@ -134,8 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(blob => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      const dateStr = getFormattedDate(); // Depende de js_comun.js
-      
+      const dateStr = getFormattedDate(); 
       if (format === 'excel') {
         link.download = `reporte_citas_excel_${dateStr}.xls`; 
       } else {
@@ -234,6 +362,11 @@ document.addEventListener("DOMContentLoaded", () => {
           handleCitaAction(id, 'aceptarCita'); 
       } else if (btn.classList.contains("btn-reject")) {
           handleCitaAction(id, 'rechazarCita');
+      } else if (btn.classList.contains("btn-checkin")) { 
+          // HU7: CHECK-IN
+          if(confirm("¿El paciente ha llegado a la clínica?")) {
+              handleCitaAction(id, 'registrarLlegada');
+          }
       } else if (btn.classList.contains("btn-print")) {
           window.open(`../PHP/generar_comprobante.php?id=${id}`, '_blank');
       }
@@ -289,6 +422,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const tr = document.createElement("tr");
       const statusClass = escapeHTML(cita.status);
       
+      // --- BOTONES CON EMOJIS ---
       let botonesHTML = `
         <button class="btn-edit" data-id="${cita.id}" title="Editar">⚙️</button>
         <button class="btn-delete" data-id="${cita.id}" title="Eliminar">🗑️</button>
@@ -300,6 +434,11 @@ document.addEventListener("DOMContentLoaded", () => {
             <button class="btn-accept" data-id="${cita.id}" title="Confirmar">✅</button>
             <button class="btn-reject" data-id="${cita.id}" title="Rechazar">❌</button>
           ` + botonesHTML;
+      } else if (cita.status === 'confirmada') {
+          // HU7: Check-in
+          botonesHTML = `
+            <button class="btn-checkin" data-id="${cita.id}" title="Registrar Llegada del Paciente">🙋‍♂️</button>
+          ` + botonesHTML;
       }
       
       tr.innerHTML = `
@@ -309,7 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${escapeHTML(cita.paciente)}</td>
         <td>${escapeHTML(cita.dni)}</td>
         <td><span class="status-badge ${statusClass}">${escapeHTML(cita.status)}</span></td>
-        <td class="opciones-buttons">${botonesHTML}</td>`;
+        <td class="opciones-buttons" style="display:flex; gap:5px;">${botonesHTML}</td>`;
       tbody.appendChild(tr);
     });
   }
@@ -401,7 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
             renderAppointmentsView();
           }
         } else {
-          alert(res.message || 'Ocurrió un error al guardar.');
+          alert('Ocurrió un error al guardar.');
         }
       });
     } catch(e) {
@@ -534,7 +673,6 @@ document.addEventListener("DOMContentLoaded", () => {
     tbody.innerHTML = "";
     data.forEach(patient => {
       const tr = document.createElement("tr");
-      // Depende de js_comun.js
       tr.innerHTML = `
         <td>${escapeHTML(patient.paciente)}</td>
         <td>${escapeHTML(patient.fecha_ingreso)}</td>
@@ -601,7 +739,7 @@ document.addEventListener("DOMContentLoaded", () => {
       opts.forEach(paciente => {
         const option = document.createElement('option');
         option.value = paciente.id;
-        option.textContent = escapeHTML(paciente.nombre_completo);
+        option.textContent = escapeHTML(paciente.nombre_completo); 
         pacienteSelect.appendChild(option);
       });
     } catch(e) {
@@ -621,6 +759,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>`;
     actionArea.insertAdjacentHTML('beforeend', html);
+    
     document.querySelector("#btnNo").addEventListener("click", closeOverlay);
     document.querySelector("#btnYes").addEventListener("click", async () => {
       await removeWaitingListEntry(id);
@@ -942,6 +1081,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     data.forEach(user => {
       const tr = document.createElement("tr");
+      // Depende de js_comun.js
       tr.innerHTML = `
         <td>${escapeHTML(user.nombre_completo)}</td>
         <td>${escapeHTML(user.username)}</td>
@@ -1144,6 +1284,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tbody.innerHTML = "";
     data.forEach(o => {
       const tr = document.createElement("tr");
+      // Depende de js_comun.js
       tr.innerHTML = `
         <td>${escapeHTML(o.numero_id)}</td>
         <td>${escapeHTML(o.nombre_completo)}</td>
@@ -1357,6 +1498,7 @@ document.addEventListener("DOMContentLoaded", () => {
     tbody.innerHTML = "";
     data.forEach(p => {
       const tr = document.createElement("tr");
+      // Depende de js_comun.js
       tr.innerHTML = `
         <td>${escapeHTML(p.nombre_completo)}</td>
         <td>${escapeHTML(p.dni)}</td>
@@ -1382,6 +1524,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Depende de js_comun.js
     const html = `
       <div id="overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999;">
         <div style="background:#fff;border-radius:10px;padding:20px;max-width:800px;width:95%;">

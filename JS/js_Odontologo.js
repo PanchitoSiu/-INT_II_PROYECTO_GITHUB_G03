@@ -51,15 +51,20 @@ document.addEventListener("DOMContentLoaded", () => {
           <p style="text-align:center; margin-top:-10px; margin-bottom:20px;">Genere reportes de sus citas por rango de fecha o especialidad.</p>
           <form id="reportForm">
             <div class="report-filters-grid">
+              
               <label for="startDate">Fecha de inicio</label>
               <input type="date" name="startDate" id="startDate">
+              
               <label for="endDate">Fecha de fin</label>
               <input type="date" name="endDate" id="endDate">
+              
               <input type="hidden" name="odontologo" value="">
+              
               <label for="especialidad">Especialidad</label>
               <select name="especialidad" id="especialidad">
                 <option value="">Todas mis Especialidades</option>
               </select>
+
             </div>
             <div class="report-actions">
               <button type="button" class="btn" id="generatePDF">
@@ -177,18 +182,17 @@ document.addEventListener("DOMContentLoaded", () => {
       
       document.querySelector("#search-miscitas").addEventListener("input", handleSearchMisCitas);
       
-      // --- AQUÍ ESTÁ EL PRIMER CAMBIO ---
       document.querySelector("#miscitas-table-body").addEventListener("click", (e) => {
         const btn = e.target.closest("button");
         if (!btn) return;
         
         const id = btn.dataset.id;
         if (btn.classList.contains("btn-accept")) {
-          btn.textContent = "Procesando..."; // Feedback visual
-          handleCitaAction(id, 'aceptarCita', btn); // Pasamos el botón 'btn'
+          btn.textContent = "Procesando..."; 
+          handleCitaAction(id, 'aceptarCita', btn); // Pasamos el botón para actualizar DOM
         } else if (btn.classList.contains("btn-reject")) {
           btn.textContent = "Procesando...";
-          handleCitaAction(id, 'rechazarCita', btn); // Pasamos el botón 'btn'
+          handleCitaAction(id, 'rechazarCita', btn);
         }
       });
 
@@ -240,6 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
             botonesHTML = '---';
         }
 
+        // Depende de js_comun.js
         tr.innerHTML = `
           <td>${escapeHTML(cita.appointment_date)}</td>
           <td>${escapeHTML(cita.paciente)}</td>
@@ -263,20 +268,18 @@ document.addEventListener("DOMContentLoaded", () => {
       renderMisCitasTable(filteredData);
     }
 
-    // --- AQUÍ ESTÁ EL SEGUNDO CAMBIO ---
     async function handleCitaAction(id, action, btnElement) {
       const fd = new FormData();
       fd.append('action', action);
       fd.append('id', id);
 
-      // Deshabilitamos el botón para evitar doble clic
       if(btnElement) btnElement.disabled = true;
 
       try {
         const res = await fetch("../PHP/gestion_de_citas_Admi_Recep.php", { method: 'POST', body: fd }).then(r => r.json());
         
         if (res.status === 'success') {
-          // Actualización inmediata del DOM (sin recargar)
+          // Actualización inmediata del DOM sin recargar
           if (btnElement) {
              const row = btnElement.closest('tr'); 
              const statusCell = row.querySelector('span.status-badge'); 
@@ -289,12 +292,10 @@ document.addEventListener("DOMContentLoaded", () => {
                  statusCell.className = 'status-badge cancelada';
                  statusCell.textContent = 'Cancelada';
              }
-             // Quitamos los botones
              actionsCell.innerHTML = '---';
           }
         } else {
           alert(res.message || 'Ocurrió un error.');
-          // Si falló, restauramos el botón
           if(btnElement) {
               btnElement.disabled = false;
               btnElement.textContent = (action === 'aceptarCita') ? "Aceptar" : "Rechazar";
@@ -387,6 +388,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tbody.innerHTML = "";
       pacientes.forEach(paciente => {
         const tr = document.createElement("tr");
+        // Depende de js_comun.js
         tr.innerHTML = `
           <td>${escapeHTML(paciente.nombre_completo)}</td>
           <td>${escapeHTML(paciente.dni)}</td>
@@ -429,6 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
           historialHtml = '<div class="cita-item"><p>Este paciente no tiene citas registradas con usted.</p></div>';
         } else {
           historialHtml = historial.map(cita => {
+            // Generar lista de archivos
             let archivosHtml = '<ul class="lista-archivos-cita">';
             if (cita.archivos && cita.archivos.length > 0) {
                 cita.archivos.forEach(file => {
@@ -436,6 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     archivosHtml += `
                         <li>
                             <a href="${filePath}" target="_blank">${escapeHTML(file.nombre_original)}</a>
+                            <button class="btn-delete-file" data-id="${file.id}" title="Borrar archivo" style="margin-left:10px; cursor:pointer; border:none; background:none; color:red;">🗑️</button>
                         </li>`;
                 });
             } else {
@@ -443,6 +447,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             archivosHtml += '</ul>';
 
+            // Depende de js_comun.js
             return `
               <div class="cita-item">
                 <div class="cita-item-header">
@@ -465,6 +470,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }).join('');
         }
 
+        // Depende de js_comun.js
         actionArea.innerHTML = `
           <div class="citas-container historial-container">
             <div class="citas-header">
@@ -494,6 +500,31 @@ document.addEventListener("DOMContentLoaded", () => {
             openCitaDetalleModal(cita, pacienteId);
           });
         });
+
+        // Listener para BORRAR ARCHIVO
+        document.querySelectorAll(".btn-delete-file").forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                if(!confirm("¿Estás seguro de que quieres borrar este archivo?")) return;
+                
+                const archivoId = e.currentTarget.dataset.id;
+                const fd = new FormData();
+                fd.append('action', 'deleteArchivo');
+                fd.append('archivo_id', archivoId);
+
+                try {
+                    const res = await fetch("../PHP/gestion_de_citas_Admi_Recep.php", { method: 'POST', body: fd }).then(r => r.json());
+                    if (res.status === 'success') {
+                        alert("Archivo eliminado.");
+                        loadClinicalHistory(pacienteId); // Recargar la lista
+                    } else {
+                        alert(res.message || "Error al eliminar.");
+                    }
+                } catch(err) {
+                    console.error(err);
+                    alert("Error de conexión.");
+                }
+            });
+        });
         
       } catch (e) {
         console.error("Error al cargar historial:", e);
@@ -502,6 +533,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function openCitaDetalleModal(cita, pacienteId) {
+      // Depende de js_comun.js
       const html = `
         <div id="overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999;">
           <div style="background:#fff;border-radius:10px;padding:20px;max-width:700px;width:95%;">
@@ -526,6 +558,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>`;
       actionArea.insertAdjacentHTML('beforeend', html);
 
+      // Depende de js_comun.js
       document.querySelector("#btnCancel").addEventListener("click", closeOverlay);
       
       document.querySelector("#formNotaCita").addEventListener("submit", async (e) => {
@@ -537,7 +570,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch("../PHP/gestion_de_citas_Admi_Recep.php", { method: 'POST', body: fd }).then(r => r.json());
         if (res.status === 'success') {
           alert("Nota guardada");
-          closeOverlay(); 
+          closeOverlay(); // Usa js_comun.js
           loadClinicalHistory(pacienteId); 
         } else {
           alert(res.message || 'Error al guardar la nota.');
@@ -559,7 +592,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch("../PHP/gestion_de_citas_Admi_Recep.php", { method: 'POST', body: fd }).then(r => r.json());
         if (res.status === 'success') {
           alert("Archivo subido con éxito");
-          closeOverlay(); 
+          closeOverlay(); // Usa js_comun.js
           loadClinicalHistory(pacienteId); 
         } else {
           alert(res.message || 'Error al subir el archivo.');
@@ -583,6 +616,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
     
+        // Depende de js_comun.js
         const html = `
           <div id="overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999;">
             <div style="background:#fff;border-radius:10px;padding:20px;max-width:800px;width:95%;">
@@ -610,6 +644,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>`;
         actionArea.insertAdjacentHTML('beforeend', html);
     
+        // Depende de js_comun.js
         document.querySelector("#btnCancel").addEventListener("click", closeOverlay);
         document.querySelector("#formOdontologoProfile").addEventListener("submit", async (e) => {
           e.preventDefault();
@@ -620,7 +655,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const res = await fetch("../PHP/gestion_odontologos_Admi_Recep.php", { method: 'POST', body: fd }).then(r => r.json());
           
           if (res.status === 'success') {
-            closeOverlay();
+            closeOverlay(); // Usa js_comun.js
             alert("¡Perfil actualizado con éxito!");
             window.location.reload(); 
           } else {

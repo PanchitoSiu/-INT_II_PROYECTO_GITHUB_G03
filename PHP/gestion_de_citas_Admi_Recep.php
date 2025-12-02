@@ -15,9 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'];
 
     // --- Lógica de Permisos ---
-    // Admin y Recepcionista pueden gestionar citas (CRUD completo)
     $puedeGestionarCita = (isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'recepcionista'));
-    // Odontólogo tiene permisos específicos (Aceptar, Rechazar, Notas, Archivos)
     $esOdontologo = (isset($_SESSION['role']) && $_SESSION['role'] === 'odontologo');
 
     switch ($action) {
@@ -201,6 +199,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['status' => $ok ? 'success' : 'error', 'message' => $ok ? 'Cita cancelada' : $conn->error]);
             break;
 
+        // --- HU7: REGISTRAR LLEGADA (CHECK-IN) ---
+        case 'registrarLlegada':
+            if (!$puedeGestionarCita) {
+                echo json_encode(['status' => 'error', 'message' => 'Error de permisos.']);
+                exit;
+            }
+            $cita_id = intval($_POST['id']);
+            
+            $stmt = $conn->prepare("UPDATE citas SET status = 'en_proceso' WHERE id = ?");
+            $stmt->bind_param('i', $cita_id);
+            $ok = $stmt->execute();
+            
+            echo json_encode(['status' => $ok ? 'success' : 'error', 'message' => $ok ? 'Paciente marcado en sala de espera' : $conn->error]);
+            $stmt->close();
+            break;
+
         // (Lógica de Odontólogo para EDITAR NOTA)
         case 'updateNotaCita':
             if (!isset($_POST['cita_id']) || !isset($_POST['notas']) || !$esOdontologo) {
@@ -256,7 +270,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(['status' => 'error', 'message' => 'Error al mover el archivo subido.']);
             }
             break;
+        // --- NUEVA ACCIÓN: BORRAR ARCHIVO ---
+        case 'deleteArchivo':
+            if (!isset($_POST['archivo_id']) || !$esOdontologo) {
+                echo json_encode(['status' => 'error', 'message' => 'Faltan datos o permisos.']);
+                exit;
+            }
+
+            $archivo_id = intval($_POST['archivo_id']);
+
+            // 1. Obtener la ruta del archivo para borrarlo físicamente
+            $stmt = $conn->prepare("SELECT ruta_archivo, nombre_servidor FROM cita_archivos WHERE id = ?");
+            $stmt->bind_param('i', $archivo_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
             
+            if ($row = $res->fetch_assoc()) {
+                $ruta_completa = $row['ruta_archivo'] . $row['nombre_servidor'];
+                
+                // 2. Borrar el archivo físico
+                if (file_exists($ruta_completa)) {
+                    unlink($ruta_completa);
+                }
+
+                // 3. Borrar el registro de la BD
+                $del_stmt = $conn->prepare("DELETE FROM cita_archivos WHERE id = ?");
+                $del_stmt->bind_param('i', $archivo_id);
+                if ($del_stmt->execute()) {
+                    echo json_encode(['status' => 'success', 'message' => 'Archivo eliminado.']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Error al borrar de la BD.']);
+                }
+                $del_stmt->close();
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Archivo no encontrado.']);
+            }
+            $stmt->close();
+            break;
+        // --- NUEVA ACCIÓN: BORRAR ARCHIVO ---
+        case 'deleteArchivo':
+            if (!isset($_POST['archivo_id']) || !$esOdontologo) {
+                echo json_encode(['status' => 'error', 'message' => 'Faltan datos o permisos.']);
+                exit;
+            }
+
+            $archivo_id = intval($_POST['archivo_id']);
+
+            // 1. Obtener la ruta del archivo para borrarlo físicamente
+            $stmt = $conn->prepare("SELECT ruta_archivo, nombre_servidor FROM cita_archivos WHERE id = ?");
+            $stmt->bind_param('i', $archivo_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            
+            if ($row = $res->fetch_assoc()) {
+                $ruta_completa = $row['ruta_archivo'] . $row['nombre_servidor'];
+                
+                // 2. Borrar el archivo físico
+                if (file_exists($ruta_completa)) {
+                    unlink($ruta_completa);
+                }
+
+                // 3. Borrar el registro de la BD
+                $del_stmt = $conn->prepare("DELETE FROM cita_archivos WHERE id = ?");
+                $del_stmt->bind_param('i', $archivo_id);
+                if ($del_stmt->execute()) {
+                    echo json_encode(['status' => 'success', 'message' => 'Archivo eliminado.']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Error al borrar de la BD.']);
+                }
+                $del_stmt->close();
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'Archivo no encontrado.']);
+            }
+            $stmt->close();
+            break;    
         default:
             echo json_encode(['status' => 'error', 'message' => 'Acción POST no reconocida.']);
     }
@@ -302,7 +389,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit;
             }
             $odontologo_id = $_SESSION['user_id'];
-            
             $sql = $sql_base . " WHERE c.odontologo_id = ? ORDER BY c.appointment_date ASC";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param('i', $odontologo_id);
@@ -320,7 +406,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit;
             }
             $paciente_id = $_SESSION['user_id'];
-            
             $sql = $sql_base . " WHERE c.paciente_id = ? ORDER BY c.appointment_date ASC";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param('i', $paciente_id);
@@ -361,7 +446,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $citas = $stmt_historial->get_result()->fetch_all(MYSQLI_ASSOC);
             $stmt_historial->close();
             
-            // Buscar archivos adjuntos para cada cita
             if (!empty($citas)) {
                 $stmt_archivos = $conn->prepare("SELECT id, nombre_original, ruta_archivo, nombre_servidor FROM cita_archivos WHERE cita_id = ?");
                 foreach ($citas as $key => $cita) {
@@ -382,9 +466,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit;
             }
             $paciente_id = $_SESSION['user_id'];
-            
             $response = ['historial' => []];
-
             $sql_historial = "SELECT c.id, DATE_FORMAT(c.appointment_date, '%d/%m/%Y %H:%i') AS fecha,
                                 o.nombre_completo AS odontologo,
                                 e.nombre_especialidad AS especialidad, c.notas, c.status
@@ -393,14 +475,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                             LEFT JOIN especialidades e ON c.especialidad_id = e.id
                             WHERE c.paciente_id = ?
                             ORDER BY c.appointment_date DESC";
-            
             $stmt_historial = $conn->prepare($sql_historial);
             $stmt_historial->bind_param('i', $paciente_id);
             $stmt_historial->execute();
             $citas = $stmt_historial->get_result()->fetch_all(MYSQLI_ASSOC);
             $stmt_historial->close();
             
-            // Buscar archivos adjuntos
             if (!empty($citas)) {
                 $stmt_archivos = $conn->prepare("SELECT id, nombre_original, ruta_archivo, nombre_servidor FROM cita_archivos WHERE cita_id = ?");
                 foreach ($citas as $key => $cita) {
@@ -415,16 +495,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             echo json_encode(['status' => 'success', 'data' => $response]);
             break;
 
-        // Para Formulario de Citas (Admin/Recep)
+        // Formulario de Citas (Admin)
         case 'getById':
             $id = intval($_GET['id']);
-            $stmt = $conn->prepare($sql_base . " WHERE c.id = ?");
+            $sql = $sql_base . " WHERE c.id = ?";
+            $stmt = $conn->prepare($sql);
             $stmt->bind_param('i', $id);
             $stmt->execute();
             echo json_encode($stmt->get_result()->fetch_assoc() ?: []);
             break;
             
-        // Para Dropdowns (Admin/Recep)
+        // Formulario de Citas (Admin)
         case 'getOptions':
             $odontologos = $conn->query("SELECT id, nombre_completo FROM odontologos")->fetch_all(MYSQLI_ASSOC);
             $pacientes = $conn->query("SELECT id, nombre_completo FROM pacientes")->fetch_all(MYSQLI_ASSOC);

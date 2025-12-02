@@ -678,6 +678,37 @@ body {
     font-size: 0.95rem;
 }
 
+/* --- HU7: Estilos para Check-in --- */
+
+/* Botón de Llegada */
+.btn-checkin {
+    background-color: #17a2b8; /* Azul Cyan */
+    color: white;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.btn-checkin:hover {
+    background-color: #138496;
+}
+
+/* Estado "En Proceso" (Paciente en sala) */
+.status-badge.en_proceso {
+    background-color: #6f42c1; /* Morado */
+    color: white;
+}
+
+/* Botón de borrar archivo en lista */
+.btn-delete-file {
+    font-size: 1rem;
+    transition: transform 0.2s;
+}
+.btn-delete-file:hover {
+    transform: scale(1.2);
+}
+
 /* =================================== */
 /* ====== DISEÑO RESPONSIVE ====== */
 /* =================================== */
